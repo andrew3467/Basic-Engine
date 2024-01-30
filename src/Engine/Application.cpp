@@ -16,7 +16,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include <chrono>
-
+#include <iostream>
 
 
 BE::Application::Application() {
@@ -24,6 +24,11 @@ BE::Application::Application() {
             .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
+
+    glfwSetWindowUserPointer(mWindow.getGLFWWindow(), this);
+
+    glfwSetScrollCallback(mWindow.getGLFWWindow(), scroll_callback);
+
     loadGameObjects();
 }
 
@@ -66,8 +71,7 @@ void BE::Application::Run() {
 
     camera.setViewTarget(glm::vec3(-1.0f, -2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 2.5f));
 
-    auto viewerObject = GameObject::createGameObject();
-    viewerObject.transform.translation.z = -2.5f;
+    camera.cameraEntity->transform.translation.z = -2.5f;
     InputMovementController camController{};
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -79,11 +83,12 @@ void BE::Application::Run() {
         float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
         currentTime = newTime;
 
-        camController.moveInPlaneXZ(mWindow.getGLFWWindow(), frameTime, viewerObject);
-        camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+        camController.moveInPlaneXZ(mWindow.getGLFWWindow(), frameTime, camera);
+        camController.rotateCameraXZ(mWindow.getGLFWWindow(), frameTime, camera);
+        camera.setViewYXZ(camera.cameraEntity->transform.translation, camera.cameraEntity->transform.rotation);
 
         float aspect = mRenderer.getAspectRatio();
-        camera.setPerspectiveProjection(glm::radians(50.0f), aspect, 0.1f, 1000.0f);
+        camera.setPerspectiveProjection(glm::radians(mFOV), aspect, 0.1f, 1000.0f);
 
         if(auto commandBuffer = mRenderer.beginFrame()){
             int frameIndex = mRenderer.getFrameIndex();
@@ -94,7 +99,7 @@ void BE::Application::Run() {
                 commandBuffer,
                 camera,
                 globalDescriptorSets[frameIndex],
-                mGameObjects
+                mEntities
             };
 
             //Update
@@ -125,29 +130,29 @@ void BE::Application::loadGameObjects() {
     std::shared_ptr<Model> vaseModel = Model::createModelFromFile(mDevice, "../models/smooth_vase.obj");
     std::shared_ptr<Model> quadModel = Model::createModelFromFile(mDevice, "../models/quad_model.obj");
 
-    auto vase1 = GameObject::createGameObject();
+    auto vase1 = Entity::createEntity();
     vase1.model = vaseModel;
     vase1.transform.translation = {-1.0f, 0.5f, 0.0f};
     vase1.transform.scale = {3.0f, 1.5f, 3.0f};
-    mGameObjects.emplace(vase1.getID(), std::move(vase1));
+    mEntities.emplace(vase1.getID(), std::move(vase1));
 
-    auto vase2 = GameObject::createGameObject();
+    auto vase2 = Entity::createEntity();
     vase2.model = vaseModel;
     vase2.transform.translation = {0.0f, 0.5f, 0.0f};
     vase2.transform.scale = {3.0f, 1.5f, 3.0f};
-    mGameObjects.emplace(vase2.getID(), std::move(vase2));
+    mEntities.emplace(vase2.getID(), std::move(vase2));
 
-    auto vase3 = GameObject::createGameObject();
+    auto vase3 = Entity::createEntity();
     vase3.model = vaseModel;
     vase3.transform.translation = {1.0f, 0.5f, 0.0f};
     vase3.transform.scale = {3.0f, 1.5f, 3.0f};
-    mGameObjects.emplace(vase3.getID(), std::move(vase3));
+    mEntities.emplace(vase3.getID(), std::move(vase3));
 
-    auto floor = GameObject::createGameObject();
+    auto floor = Entity::createEntity();
     floor.model = quadModel;
     floor.transform.translation = {0.0f, 0.5f, 0.0f};
     floor.transform.scale = {3.0f, 1.0f, 3.0f};
-    mGameObjects.emplace(floor.getID(), std::move(floor));
+    mEntities.emplace(floor.getID(), std::move(floor));
 
     std::vector<glm::vec3> lightColors{
             {1.f, .1f, .1f},
@@ -159,14 +164,29 @@ void BE::Application::loadGameObjects() {
     };
 
     for (int i = 0; i < lightColors.size(); i++) {
-        auto pointLight = GameObject::createPointLight(0.2f);
+        auto pointLight = Entity::createPointLight(0.2f);
         pointLight.color = lightColors[i];
         auto rotateLight = glm::rotate(
                 glm::mat4(1.f),
                 (i * glm::two_pi<float>()) / lightColors.size(),
                 {0.f, -1.f, 0.f});
         pointLight.transform.translation = glm::vec3(rotateLight * glm::vec4(-1.f, -1.f, -1.f, 1.f));
-        mGameObjects.emplace(pointLight.getID(), std::move(pointLight));
+        mEntities.emplace(pointLight.getID(), std::move(pointLight));
     }
+}
+
+void BE::Application::scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+    auto app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+
+    app->mFOV -= yoffset;
+
+    if(app->mFOV <= 1.0f){
+        app->mFOV = 1.0f;
+    }
+    if(app->mFOV >= 120.0f){
+        app->mFOV = 120.0f;
+    }
+
+    std::cout << app->mFOV << "\n";
 }
 

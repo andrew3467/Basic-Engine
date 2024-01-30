@@ -8,16 +8,16 @@
 #include <Camera.h>
 
 #include <vulkan/vulkan.h>
-#include <GameObject.h>
+#include <Entity.h>
 
 namespace BE {
     struct FrameInfo{
         int frameIndex;
         float frameTime;
         VkCommandBuffer commandBuffer;
-        Camera camera;
+        Camera &camera;
         VkDescriptorSet globalDescriptorSet;
-        GameObject::Map &gameObjects;
+        Entity::Map &gameObjects;
     };
 
 #define MAX_LIGHTS 10

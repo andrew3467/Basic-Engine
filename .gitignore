@@ -34,6 +34,7 @@
 #clion
 .idea
 cmake-build-debug-mingw
+cmake-build-debug
 
 #compiled shaders
 *.spv

@@ -7,7 +7,7 @@
 
 
 #include "Window.h"
-#include <GameObject.h>
+#include <Entity.h>
 #include <Renderer.h>
 #include <Descriptor.h>
 
@@ -27,20 +27,26 @@ namespace BE {
     private:
         void loadGameObjects();
 
+        static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
     public:
         static constexpr int WIDTH = 1280;
         static constexpr int HEIGHT = 720;
 
+        Window mWindow{WIDTH, HEIGHT, "Hello Vulkan"};
 
+
+        float mFOV = 60.0f;
+        float pitch = 0.0f;
+        float yaw = 0.0f;
 
     private:
-        Window mWindow{WIDTH, HEIGHT, "Hello Vulkan"};
         Device mDevice{mWindow};
         Renderer mRenderer{mWindow, mDevice};
 
         //Declaration order matters
         std::unique_ptr<DescriptorPool> mGlobalPool{};
-        GameObject::Map mGameObjects;
+        Entity::Map mEntities;
     };
 }
 

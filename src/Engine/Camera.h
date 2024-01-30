@@ -9,11 +9,15 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
+#include "Entity.h"
 
 
 namespace BE {
     class Camera {
     public:
+        Camera();
+
         void setOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
         void setPerspectiveProjection(float FOV, float aspect, float near, float far);
 
@@ -26,6 +30,15 @@ namespace BE {
         const glm::mat4& getView() const {return viewMatrix;}
         const glm::mat4& getInverseView() const {return inverseViewMatrix;}
         const glm::vec3 getPosition() const {return glm::vec3(inverseViewMatrix[3]);}
+
+        std::unique_ptr<Entity> cameraEntity;
+
+        bool firstMouse = true;
+        float lastX, lastY;
+
+        glm::vec3 front;
+        glm::vec3 right;
+        glm::vec3 up;
 
     private:
         glm::mat4 projectionMatrix{1.0f};

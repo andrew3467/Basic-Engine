@@ -7,7 +7,7 @@
 
 
 #include "Pipeline.h"
-#include "GameObject.h"
+#include "Entity.h"
 
 #include <memory>
 #include "Camera.h"

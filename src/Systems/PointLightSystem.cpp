@@ -73,7 +73,7 @@ void BE::PointLightSystem::createPipeline(VkRenderPass renderPass) {
 }
 
 void BE::PointLightSystem::render(FrameInfo &frameInfo) {
-    std::map<float, GameObject::id_t> sorted;
+    std::map<float, Entity::id_t> sorted;
     for(auto& kv : frameInfo.gameObjects) {
         auto &obj = kv.second;
         if (obj.pointLight == nullptr) continue;

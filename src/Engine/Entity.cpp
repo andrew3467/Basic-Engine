@@ -2,7 +2,7 @@
 // Created by apgra on 1/15/2024.
 //
 
-#include <GameObject.h>
+#include <Entity.h>
 
 glm::mat4 BE::TransformComponent::mat4() {
     const float c3 = glm::cos(rotation.z);
@@ -61,8 +61,8 @@ glm::mat3 BE::TransformComponent::normalMatrix() {
     };
 }
 
-BE::GameObject BE::GameObject::createPointLight(float intensity, float radius, glm::vec3 color) {
-    GameObject gameObj = GameObject::createGameObject();
+BE::Entity BE::Entity::createPointLight(float intensity, float radius, glm::vec3 color) {
+    Entity gameObj = Entity::createEntity();
     gameObj.color = color;
     gameObj.transform.scale.x = radius;
     gameObj.pointLight = std::make_unique<PointLightComponent>();

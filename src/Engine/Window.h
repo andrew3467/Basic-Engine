@@ -33,7 +33,7 @@ namespace BE {
         void Init();
 
 
-    private:
+    public:
         GLFWwindow *mWindow;
 
         int width;

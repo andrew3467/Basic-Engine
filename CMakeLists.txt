@@ -7,6 +7,7 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 find_package(Vulkan REQUIRED COMPONENTS glslc)
 find_package(GLFW3 REQUIRED)
 find_package(GLM REQUIRED)
+find_package(EnTT CONFIG REQUIRED)
 
 
 
@@ -38,4 +39,5 @@ target_link_libraries(Basic_Engine PRIVATE
         Vulkan::Vulkan
         glfw
         glm::glm
+        EnTT::EnTT
 )

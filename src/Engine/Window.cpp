@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include "Window.h"
+#include "Application.h"
 
 BE::Window::Window(int w, int h, std::string t) : width(w), height(h), title(t) {
     Init();
@@ -20,7 +21,9 @@ void BE::Window::Init() {
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);     //Vulkan needs special window resizing
 
     mWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
-    glfwSetWindowUserPointer(mWindow, this);
+    //glfwSetWindowUserPointer(mWindow, this);
+
+    glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glfwSetFramebufferSizeCallback(mWindow, framebufferResizeCallback);
 }
@@ -32,8 +35,8 @@ void BE::Window::CreateWindowSurface(VkInstance instance, VkSurfaceKHR *surface)
 }
 
 void BE::Window::framebufferResizeCallback(GLFWwindow *window, int width, int height) {
-    auto BEwindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-    BEwindow->frameBufferResized = true;
-    BEwindow->width = width;
-    BEwindow->height = height;
+    auto app = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window));
+    app->mWindow.frameBufferResized = true;
+    app->mWindow.width = width;
+    app->mWindow.height = height;
 }

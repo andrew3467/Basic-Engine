@@ -5,9 +5,27 @@
 #include "Camera.h"
 
 #include <cassert>
+#include <cmath>
 #include <limits>
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <iostream>
 
+
+//ROTATE 180 degrees around X
+//Left handed(OpenGL) to Right handed(Vulkan)
+const glm::mat4 ROTATE_AROUND_X{
+        {1, 0, 0, 0},
+        {0, 1, 0, 0},
+        {0, 0, -1, 0},
+        {0, 0, 0, 1}
+};
+
+
+BE::Camera::Camera() {
+    cameraEntity = std::make_unique<Entity>(Entity::createEntity());
+}
 
 void BE::Camera::setOrthographicProjection(float left, float right, float top, float bottom, float near, float far) {
     projectionMatrix = glm::mat4{1.0f};
@@ -29,6 +47,12 @@ void BE::Camera::setPerspectiveProjection(float FOV, float aspect, float near, f
     projectionMatrix[2][2] = far / (far - near);
     projectionMatrix[2][3] = 1.f;
     projectionMatrix[3][2] = -(far * near) / (far - near);
+
+    glm::mat4 proj(1.0f);
+    proj = glm::perspective(FOV, aspect, near, far);
+
+    std::cout << glm::to_string(projectionMatrix) << "\n";
+    std::cout << glm::to_string(proj) << "\n";
 }
 
 void BE::Camera::setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up) {
@@ -109,3 +133,4 @@ void BE::Camera::setViewYXZ(glm::vec3 position, glm::vec3 rotation) {
     inverseViewMatrix[3][1] = position.y;
     inverseViewMatrix[3][2] = position.z;
 }
+
